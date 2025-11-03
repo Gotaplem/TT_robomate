@@ -1,7 +1,6 @@
 import sys
 from pathlib import Path
 
-# Добавляем корень проекта в sys.path, чтобы Python видел папку app
 sys.path.append(str(Path(__file__).resolve().parent.parent))
 
 import pytest
@@ -14,11 +13,9 @@ client = TestClient(app)
 
 def test_ingest_and_dau():
     db = SessionLocal()
-    # очищаем таблицу событий перед тестом
     db.query(Event).delete()
     db.commit()
 
-    # фиксированная дата, чтобы тест был предсказуемым
     test_date = "2025-11-03T12:00:00+03:00"
     events = [
         {
@@ -37,12 +34,10 @@ def test_ingest_and_dau():
         }
     ]
     
-    # POST /events
     response = client.post("/events", json=events)
     assert response.status_code == 200
     assert response.json()["inserted"] == 2
 
-    # GET /stats/dau за дату теста
     today = "2025-11-03"
     response = client.get(f"/stats/dau?from_date={today}&to_date={today}")
     assert response.status_code == 200
