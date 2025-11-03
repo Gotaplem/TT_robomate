@@ -7,12 +7,10 @@ import uuid
 
 router = APIRouter()
 
-# --- тестовый ping ---
 @router.get("/ping")
 def ping():
     return {"message": "pong"}
 
-# --- POST /events ---
 @router.post("/events")
 def ingest_events(events: List[dict]):
     db = SessionLocal()
@@ -54,7 +52,6 @@ def get_dau(from_date: str = Query(...), to_date: str = Query(...)):
         current = next_day
     return result
 
-# --- GET /stats/top-events ---
 @router.get("/stats/top-events")
 def top_events(from_date: str = Query(...), to_date: str = Query(...), limit: int = 10):
     db = SessionLocal()
@@ -72,21 +69,18 @@ def top_events(from_date: str = Query(...), to_date: str = Query(...), limit: in
 
     return [{"event_type": r[0], "count": r[1]} for r in results]
 
-# --- GET /stats/retention ---
 @router.get("/stats/retention")
 def retention(start_date: str = Query(...), windows: int = Query(3)):
     db = SessionLocal()
     start = datetime.fromisoformat(start_date)
     result = {}
 
-    # получаем пользователей, которые были активны в стартовый день
     cohort_users = db.query(Event.user_id).filter(
         Event.occurred_at >= start,
         Event.occurred_at < start + timedelta(days=1)
     ).distinct().all()
     cohort_users = [u[0] for u in cohort_users]
 
-    # считаем, сколько из них вернулись в следующие дни
     for i in range(windows):
         day = start + timedelta(days=i)
         count = db.query(Event.user_id).filter(
