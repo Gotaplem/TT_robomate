@@ -1,7 +1,7 @@
 import sys
 from pathlib import Path
 
-# Добавляем корень проекта в sys.path, чтобы Python видел папку app
+
 sys.path.append(str(Path(__file__).resolve().parent.parent))
 
 import pytest
@@ -12,7 +12,6 @@ import uuid
 client = TestClient(app)
 
 def test_idempotent_post_events():
-    # создаем одно событие
     event_id = str(uuid.uuid4())
     event = [{
         "event_id": event_id,
@@ -22,12 +21,10 @@ def test_idempotent_post_events():
         "properties": {"device": "pc"}
     }]
     
-    # первый POST
     response1 = client.post("/events", json=event)
     assert response1.status_code == 200
     assert response1.json()["inserted"] == 1
     
-    # второй POST с тем же event_id
     response2 = client.post("/events", json=event)
     assert response2.status_code == 200
     # не должно добавляться второй раз
