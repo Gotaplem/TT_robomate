@@ -1,8 +1,7 @@
 from fastapi import FastAPI
 from app.routes import router
-from app.database import init_db  # <-- функция для создания таблиц
+from app.database import init_db 
 
-# создаём таблицы, если их ещё нет
 init_db()
 
 app = FastAPI(title="Event Analytics Service")
